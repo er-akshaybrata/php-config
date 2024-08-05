@@ -145,9 +145,26 @@ class DBController
         return $result; 
     }
     
-    function allow_image_type()
-    {
-        return array("image/jpeg", "image/gif", "image/png");    
+    function isImage($fileExtension) {
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+        return in_array($fileExtension, $allowedExtensions);
+    }
+    
+    // Function to upload file
+    function uploadFile($fileKey,$targetDir) {
+        if (isset($_FILES[$fileKey]) && $_FILES[$fileKey]['error'] == UPLOAD_ERR_OK) {
+            $uniqueId = uniqid() . rand(1000, 9999);
+            $originalFileName = pathinfo($_FILES[$fileKey]["name"], PATHINFO_FILENAME);
+            $extension = strtolower(pathinfo($_FILES[$fileKey]["name"], PATHINFO_EXTENSION));
+            $targetFile = $targetDir . $originalFileName . '_' . $uniqueId . '.' . $extension;
+    
+            if (isImage($extension)) {
+                if (move_uploaded_file($_FILES[$fileKey]["tmp_name"], $targetFile)) {
+                    return $originalFileName . '_' . $uniqueId . '.' . $extension;
+                }
+            }
+        }
+        return null; // Return null if file upload fails or file is not an image
     }
     
     function current_date_return() {
